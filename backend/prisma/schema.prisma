@@ -1,0 +1,87 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                  String           @id @default(uuid())
+  email               String           @unique
+  passwordHash        String
+  isVerified          Boolean          @default(false)
+  role                String           @default("USER") // "USER" or "ADMIN"
+  verificationToken   String?
+  verificationExpires DateTime?
+  resetPasswordToken  String?
+  resetPasswordExpires DateTime?
+  refreshToken        String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  books               Book[]
+  collections         Collection[]
+  sessions            ReadingSession[]
+}
+
+model Book {
+  id              String           @id @default(uuid())
+  userId          String
+  title           String
+  author          String
+  totalPages      Int
+  currentPage     Int              @default(0)
+  coverUrl        String?
+  status          String           @default("owned") // "currently-reading", "completed", "want-to-read", "owned"
+  rating          Int              @default(0)
+  review          String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collections     BookCollection[]
+  sessions        ReadingSession[]
+  notesHighlights NoteHighlight[]
+}
+
+model Collection {
+  id        String           @id @default(uuid())
+  userId    String
+  name      String
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  books     BookCollection[]
+}
+
+model BookCollection {
+  bookId       String
+  collectionId String
+  book         Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([bookId, collectionId])
+}
+
+model ReadingSession {
+  id              String   @id @default(uuid())
+  userId          String
+  bookId          String
+  durationSeconds Int
+  pagesRead       Int
+  timestamp       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book            Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+}
+
+model NoteHighlight {
+  id         String   @id @default(uuid())
+  userId     String
+  bookId     String
+  type       String   // "note" or "highlight"
+  content    String
+  pageNumber Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  book       Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+}

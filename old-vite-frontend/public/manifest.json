@@ -1,0 +1,17 @@
+{
+  "short_name": "BookVault",
+  "name": "BookVault — Premium Reading Companion",
+  "description": "Your premium, personal reading companion to track books, streaks, notes, highlights, and analytics with AI intelligence.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0F1115",
+  "theme_color": "#0F1115",
+  "display": "standalone",
+  "orientation": "portrait"
+}
